@@ -8,6 +8,11 @@ performs a type analysis to Intermediate Representations for ECMAScript
 Specifications (IRES).
 
 
+## Publication
+
+Details of the JSTAR framework are available in the paper `ase21-park-jstar.pdf`.
+
+
 ## Getting Started Guide
 The artifact is open-source can be obtained by cloning the following git
 repository:
