@@ -34,7 +34,7 @@ Insert the following commands to `~/.bashrc` (or `~/.zshrc`):
 export JSTAR_HOME="<path to JSTAR>"
 export PATH="$JSTAR_HOME/bin:$PATH"
 ```
-The `<path to JSTAR>` should be the absolute path of JSTAR repository.
+The `<path to JSTAR>` should be the _absolute path_ of JSTAR repository.
 
 
 ## Installation of JSTAR using `sbt`
