@@ -39,8 +39,8 @@ case object CmdBase extends CommandObj("", PhaseNil)
 // help
 case object CmdHelp extends CommandObj("help", CmdBase >> Help)
 
-// parse
-case object CmdParse extends CommandObj("parse", CmdBase >> Parse) {
+// extract
+case object CmdExtract extends CommandObj("extract", CmdBase >> Extract) {
   override def display(spec: ECMAScript): Unit = {
     val ECMAScript(grammar, algos, intrinsics, symbols, aoids, section) = spec
     println(s"* grammar:")
@@ -58,7 +58,7 @@ case object CmdParse extends CommandObj("parse", CmdBase >> Parse) {
 }
 
 // build-cfg
-case object CmdBuildCFG extends CommandObj("build-cfg", CmdParse >> BuildCFG)
+case object CmdBuildCFG extends CommandObj("build-cfg", CmdExtract >> BuildCFG)
 
 // analyze
 case object CmdAnalyze extends CommandObj("analyze", CmdBuildCFG >> Analyze) {

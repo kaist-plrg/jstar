@@ -2,12 +2,12 @@ package kr.ac.kaist.jstar.compile
 
 import kr.ac.kaist.jstar._
 import kr.ac.kaist.jstar.ir._
-import kr.ac.kaist.jstar.parser.algorithm.{ Compiler, TokenParser }
+import kr.ac.kaist.jstar.extractor.algorithm.{ Compiler, TokenParser }
 import kr.ac.kaist.jstar.spec.JsonProtocol._
 import kr.ac.kaist.jstar.util.Useful._
 import org.scalatest._
 import kr.ac.kaist.jstar.spec.algorithm.Token
-import kr.ac.kaist.jstar.parser.ECMAScriptParser
+import kr.ac.kaist.jstar.extractor.ECMAScriptParser
 
 class BasicMiddleTest extends CompileTest {
   val name: String = "compileBasicTest"

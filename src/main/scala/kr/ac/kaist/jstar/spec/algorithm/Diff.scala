@@ -2,9 +2,6 @@ package kr.ac.kaist.jstar.spec.algorithm
 
 import kr.ac.kaist.jstar.ir._
 import kr.ac.kaist.jstar.util.Useful._
-// import org.scalatest._
-// import kr.ac.kaist.jstar.spec.algorithm.Step
-// import kr.ac.kaist.jstar.parser.ECMAScriptParser
 
 class Diff {
   def apply(result: IRNode, answer: IRNode): Option[Missing] = try {

@@ -21,10 +21,10 @@ lazy val smallTest = taskKey[Unit]("Launch small tests (maybe seconds)")
 lazy val middleTest = taskKey[Unit]("Launch middle tests (maybe minutes)")
 lazy val largeTest = taskKey[Unit]("Launch large tests (may hours)")
 
-// parse
-lazy val parseTest = taskKey[Unit]("Launch parse tests")
-lazy val parseTokenTest = taskKey[Unit]("Launch token parse tests (tiny)")
-lazy val parseJsonTest = taskKey[Unit]("Launch json parse tests (small)")
+// extract
+lazy val extractTest = taskKey[Unit]("Launch extract tests")
+lazy val extractTokenTest = taskKey[Unit]("Launch token extract tests (tiny)")
+lazy val extractJsonTest = taskKey[Unit]("Launch json extract tests (small)")
 
 // grammar
 lazy val grammarTest = taskKey[Unit]("Launch grammar tests")
@@ -39,13 +39,6 @@ lazy val compileManualTest = taskKey[Unit]("Launch manual compile tests (small)"
 // cfg
 lazy val cfgTest = taskKey[Unit]("Launch cfg tests")
 lazy val cfgBuildTest = taskKey[Unit]("Launch build cfg tests (small)")
-
-// analyzer
-lazy val analyzerTest = taskKey[Unit]("Launch analyzer tests")
-lazy val analyzerBeautifierTest = taskKey[Unit]("Launch beautifier analyzer tests (small)")
-lazy val analyzerJsonTest = taskKey[Unit]("Launch JSON analyzer tests (small)")
-lazy val analyzerManualTest = taskKey[Unit]("Launch ananlyzer manual comparison tests (tiny)")
-lazy val analyzerStringifyTest = taskKey[Unit]("Launch analyzer stringify tests (tiny)")
 
 // ir
 lazy val irTest = taskKey[Unit]("Launch ir tests")
@@ -80,10 +73,10 @@ lazy val jstar = (project in file("."))
     smallTest := (testOnly in Test).toTask(" *SmallTest").value,
     middleTest := (testOnly in Test).toTask(" *MiddleTest").value,
     largeTest := (testOnly in Test).toTask(" *LargeTest").value,
-    // parse
-    parseTest := (testOnly in Test).toTask(" *.parse.*Test").value,
-    parseTokenTest := (testOnly in Test).toTask(" *.parse.Token*Test").value,
-		parseJsonTest := (testOnly in Test).toTask(" *.parse.Json*Test").value,
+    // extract
+    extractTest := (testOnly in Test).toTask(" *.extract.*Test").value,
+    extractTokenTest := (testOnly in Test).toTask(" *.extract.Token*Test").value,
+		extractJsonTest := (testOnly in Test).toTask(" *.extract.Json*Test").value,
     // gramamr
     grammarTest := (testOnly in Test).toTask(" *.grammar.*Test").value,
     grammarBasicTest := (testOnly in Test).toTask(" *.grammar.Basic*Test").value,
@@ -95,12 +88,6 @@ lazy val jstar = (project in file("."))
     // cfg
     cfgTest := (testOnly in Test).toTask(" *.cfg.*Test").value,
     cfgBuildTest := (testOnly in Test).toTask(" *.cfg.Build*Test").value,
-    // analyzer
-    analyzerTest := (testOnly in Test).toTask(" *.analyzer.*Test").value,
-    analyzerBeautifierTest := (testOnly in Test).toTask(" *.analyzer.Beautifier*Test").value,
-    analyzerJsonTest := (testOnly in Test).toTask(" *.analyzer.Json*Test").value,
-    analyzerManualTest := (testOnly in Test).toTask(" *.analyzer.Manual*Test").value,
-    analyzerStringifyTest := (testOnly in Test).toTask(" *.analyzer.Stringify*Test").value,
     // ir
     irTest := (testOnly in Test).toTask(" *.ir.*Test").value,
 		irBeautifierTest := (testOnly in Test).toTask(" *.ir.Beautifier*Test").value

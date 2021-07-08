@@ -4,7 +4,7 @@ import java.io._
 import kr.ac.kaist.jstar.analyzer._
 import kr.ac.kaist.jstar.cfg._
 import kr.ac.kaist.jstar.error.NotSupported
-import kr.ac.kaist.jstar.parser.ECMAScriptParser
+import kr.ac.kaist.jstar.extractor.ECMAScriptParser
 import kr.ac.kaist.jstar.phase._
 import kr.ac.kaist.jstar.util.Useful._
 import org.scalatest._
@@ -88,21 +88,21 @@ trait JSTARTest extends FunSuite with BeforeAndAfterAll {
       (name, result) <- map.toSeq.sortBy(_._1)
     } (resMap.get(name), result) match {
       case (None, _) => error(s"'[$tag] $name' test is removed")
-      case (Some(Fail), Yet(_) | Pass) => error(s"'[$tag] $name' test becomes failed")
+      case (Some(Fail), Pass) => error(s"'[$tag] $name' test becomes failed")
       case _ =>
     }
 
     // save abstract result if backward-compatible
-    if (breakCount == 0) {
-      val pw = getPrintWriter(s"$TEST_DIR/result/$category/$this")
-      val (x, y) = getScore(resMap)
-      pw.println(s"$tag: $x / $y")
-      pw.close()
+    val dirname = s"$TEST_DIR/result/$category"
+    mkdir(dirname)
+    val pw = getPrintWriter(s"$dirname/$this")
+    val (x, y) = getScore(resMap)
+    pw.println(s"$tag: $x / $y")
+    pw.close()
 
-      val jpw = getPrintWriter(filename)
-      jpw.println(resMap.toJson.sortedPrint)
-      jpw.close()
-    }
+    val jpw = getPrintWriter(filename)
+    jpw.println(resMap.toJson.sortedPrint)
+    jpw.close()
   }
 
   // test name

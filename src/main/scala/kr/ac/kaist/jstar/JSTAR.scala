@@ -58,7 +58,7 @@ object JSTAR {
   // commands
   val commands: List[Command] = List(
     CmdHelp,
-    CmdParse,
+    CmdExtract,
     CmdBuildCFG,
     CmdAnalyze,
   )
@@ -69,7 +69,7 @@ object JSTAR {
   // phases
   var phases: List[Phase] = List(
     Help,
-    Parse,
+    Extract,
     BuildCFG,
     Analyze,
   )

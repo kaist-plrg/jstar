@@ -17,7 +17,7 @@ object Stat {
   private val nf = getPrintWriter(s"$ANALYZE_LOG_DIR/summary.tsv")
 
   // time
-  var parseTime = 0L
+  var extractTime = 0L
   var cfgTime = 0L
   var checkerTime = 0L
   var analysisStartTime = 0L
@@ -81,10 +81,10 @@ object Stat {
     // dumpFile(getString(CYAN), s"$ANALYZE_LOG_DIR/result.log")
 
     // dump stat for evaluation
-    // # iter, parse, cfg, checker, analyze, full, all, node, return, all
+    // # iter, extract, cfg, checker, analyze, full, all, node, return, all
     val evalItems = List(
       iter,
-      parseTime,
+      extractTime,
       cfgTime,
       checkerTime,
       analTime,

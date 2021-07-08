@@ -9,7 +9,7 @@ package object jstar {
 
   // Log directory
   val LOG_DIR = s"$BASE_DIR/logs"
-  val PARSE_LOG_DIR = s"$LOG_DIR/parse"
+  val EXTRACT_LOG_DIR = s"$LOG_DIR/extract"
   val ANALYZE_LOG_DIR = s"$LOG_DIR/analyze"
 
   // Specification directory

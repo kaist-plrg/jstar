@@ -1,6 +1,6 @@
 package kr.ac.kaist.jstar.spec
 
-import kr.ac.kaist.jstar.parser.ECMAScriptParser
+import kr.ac.kaist.jstar.extractor.ECMAScriptParser
 import kr.ac.kaist.jstar.ir
 import kr.ac.kaist.jstar.spec.algorithm._
 import kr.ac.kaist.jstar.spec.grammar._
