@@ -5,52 +5,52 @@ import kr.ac.kaist.jstar.ir.Beautifier._
 import kr.ac.kaist.jstar.util.Useful._
 import scala.Console.RED
 
-trait PruneHelper { this: AbsTransfer.Helper =>
+trait RefineHelper { this: AbsTransfer.Helper =>
   import AbsState.monad._
 
   // pruning abstract states
-  def prune(
+  def refine(
     st: AbsState,
     expr: Expr,
     pass: Boolean
   ): Updater = {
-    val pruneVar = PruneVar(st, pass)
+    val refineVar = RefineVar(st, pass)
     st => expr match {
-      case _ if !PRUNE => st
-      case pruneVar(newSt) => newSt
+      case _ if !REFINE => st
+      case refineVar(newSt) => newSt
       case _ => st
     }
   }
 
-  case class PruneVar(st: AbsState, pass: Boolean) {
-    // pruned variable names
-    var prunedVars: Set[String] = Set()
+  case class RefineVar(st: AbsState, pass: Boolean) {
+    // refined variable names
+    var refinedVars: Set[String] = Set()
 
-    // escape pruned variables
+    // escape refined variables
     private def escaped(st: AbsState): AbsState = AbsState(
       reachable = st.reachable,
       map = {
         (st.map.map {
-          case (v, atype) if prunedVars contains v => v -> atype.uncheckEscaped
+          case (v, atype) if refinedVars contains v => v -> atype.uncheckEscaped
           case (v, atype) => v -> atype
         }).toMap
       }
     )
 
     // helper
-    val prune = this
-    def not: PruneVar = PruneVar(st, !pass)
+    val refine = this
+    def not: RefineVar = RefineVar(st, !pass)
     def unapply(expr: Expr): Option[AbsState] = optional(this(expr))
 
-    // prune state
+    // refine state
     private def apply(expr: Expr): AbsState = expr match {
       case EUOp(ONot, expr) => not(expr)
-      // prune normal completion
+      // refine normal completion
       case EBOp(OEq, rexpr @ ERef(RefProp(ref, EStr("Type"))), ERef(RefId(Id("CONST_normal")))) if ref.isVar =>
         val updator = for {
           a <- transfer(ref)
           l <- get(_.lookup(ERef(ref), a, check = false))
-          newT = pruneNormalComp(l, pass)
+          newT = refineNormalComp(l, pass)
         } yield (ERef(ref), a, newT)
         update(st, updator)
       case EBOp(OEq, lexpr @ ERef(ref), right) if ref.isVar =>
@@ -58,32 +58,32 @@ trait PruneHelper { this: AbsTransfer.Helper =>
           a <- transfer(ref)
           l <- get(_.lookup(lexpr, a, check = false))
           r <- transfer(right)
-          newT = pruneValue(l.escaped(lexpr), r.escaped(right), pass)
+          newT = refineValue(l.escaped(lexpr), r.escaped(right), pass)
         } yield (lexpr, a, newT)
-        prunedVars += ref.getId
+        refinedVars += ref.getId
         update(st, updator)
       case EIsInstanceOf(base @ ERef(ref), name) if ref.isVar =>
         val updator = for {
           a <- transfer(ref)
           l <- get(_.lookup(base, a, check = false))
-          newT = pruneInstance(l.escaped(base), name, pass)
+          newT = refineInstance(l.escaped(base), name, pass)
         } yield (base, a, newT)
-        prunedVars += ref.getId
+        refinedVars += ref.getId
         update(st, updator)
       case EBOp(OEq, ETypeOf(left @ ERef(ref)), right) if ref.isVar =>
         val updator = for {
           a <- transfer(ref)
           l <- get(_.lookup(left, a, check = false))
           r <- transfer(right)
-          newT = pruneType(l.escaped(left), r.escaped(right), pass)
+          newT = refineType(l.escaped(left), r.escaped(right), pass)
         } yield (left, a, newT)
-        prunedVars += ref.getId
+        refinedVars += ref.getId
         update(st, updator)
-      case EBOp(OOr, prune(st0), prune(st1)) =>
+      case EBOp(OOr, refine(st0), refine(st1)) =>
         val est0 = escaped(st0)
         val est1 = escaped(st1)
         if (pass) est0 ⊔ est1 else est0 ⊓ est1
-      case EBOp(OAnd, prune(st0), prune(st1)) =>
+      case EBOp(OAnd, refine(st0), refine(st1)) =>
         val est0 = escaped(st0)
         val est1 = escaped(st1)
         if (pass) est0 ⊓ est1 else est0 ⊔ est1
@@ -102,18 +102,18 @@ trait PruneHelper { this: AbsTransfer.Helper =>
   }
 
   // pruning for normal completion
-  def pruneNormalComp(l: AbsType, pass: Boolean): AbsType =
+  def refineNormalComp(l: AbsType, pass: Boolean): AbsType =
     if (pass) AbsType(l.compSet) - AbruptT else l ⊓ AbruptT
 
   // pruning for value checks
-  def pruneValue(l: AbsType, r: AbsType, pass: Boolean): AbsType = {
+  def refineValue(l: AbsType, r: AbsType, pass: Boolean): AbsType = {
     optional[AbsType](if (pass) l ⊓ r else r.set.head match {
       case t: SingleT if r.set.size == 1 => l - t
     }).getOrElse(l)
   }
 
   // pruning for type checks
-  def pruneType(l: AbsType, r: AbsType, pass: Boolean): AbsType = {
+  def refineType(l: AbsType, r: AbsType, pass: Boolean): AbsType = {
     optional[AbsType](r.set.head match {
       case Str(name) if r.set.size == 1 =>
         val t: Type = name match {
@@ -132,7 +132,7 @@ trait PruneHelper { this: AbsTransfer.Helper =>
   }
 
   // pruning for instance checks
-  def pruneInstance(l: AbsType, name: String, pass: Boolean): AbsType = {
+  def refineInstance(l: AbsType, name: String, pass: Boolean): AbsType = {
     val nameT = NameT(name)
     val astT = AstT(name)
     val isAst = cfg.spec.grammar.recSubs.keySet contains name

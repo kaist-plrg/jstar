@@ -95,11 +95,11 @@ object AbsTransfer {
         val cond = t.escaped(expr)
         if (AT ⊑ cond) {
           val np = NodePoint(cfg.thenNext(branch), view)
-          sem += np -> prune(st, expr, true)(newSt)
+          sem += np -> refine(st, expr, true)(newSt)
         }
         if (AF ⊑ cond) {
           val np = NodePoint(cfg.elseNext(branch), view)
-          sem += np -> prune(st, expr, false)(newSt)
+          sem += np -> refine(st, expr, false)(newSt)
         }
     }
   }
@@ -123,7 +123,7 @@ object AbsTransfer {
     }
   }
 
-  class Helper(ret: ReturnPoint) extends PruneHelper {
+  class Helper(ret: ReturnPoint) extends RefineHelper {
     // function
     val func = ret.func
     val fid = func.uid
@@ -178,7 +178,7 @@ object AbsTransfer {
       case IAssert(expr) => for {
         st <- get
         t <- transfer(expr)
-        _ <- modify(prune(st, expr, true))
+        _ <- modify(refine(st, expr, true))
         tv = t.escaped(expr)
         _ <- if (tv ⊑ AF) put(AbsState.Bot) else pure(())
       } yield assert(tv, expr)

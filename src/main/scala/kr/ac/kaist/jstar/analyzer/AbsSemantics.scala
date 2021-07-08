@@ -134,8 +134,8 @@ object AbsSemantics {
     st
   }
 
-  // pruning this value for method algorithms
-  def pruneThis(func: Function, args: List[AbsType]): List[AbsType] = {
+  // refine this value for method algorithms
+  def refineThis(func: Function, args: List[AbsType]): List[AbsType] = {
     (func.algo.head, args) match {
       case (head: MethodHead, thisT :: args) => NameT(head.base) :: args
       case _ => args
@@ -150,7 +150,7 @@ object AbsSemantics {
     args: List[AbsType],
     retVar: String
   ): Unit = for {
-    tys <- getTypes(pruneThis(func, args))
+    tys <- getTypes(refineThis(func, args))
     view = View(tys)
   } {
     val params = func.algo.params
