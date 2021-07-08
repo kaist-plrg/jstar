@@ -11,9 +11,11 @@ Specifications (IRES).
 ## Getting Started Guide
 The artifact is open-source can be obtained by cloning the following git
 repository:
+```bash
+$ git clone --recurse-submodules https://github.com/kaist-plrg/jstar.git
 ```
-$ git clone https://github.com/kaist-plrg/jstar.git
-```
+Please see `INSTALL.md` for the detailed guide of installation.
+
 
 ## Overall Structure
 
@@ -61,7 +63,7 @@ developed four checkers in a bug detector:
 ## Basic Commands
 
 You can run the artifact with the following command:
-```
+```bash
 $ jstar <sub-command> <option>*
 ```
 with the following sub-commands:
