@@ -1,3 +1,9 @@
+# JSTAR
+JavaScript Specification Type Analyzer using Refinement
+
+_previuos readme below_
+------
+
 # JISET
 JavaScript IR-based Semantics Extraction Toolchain
 
