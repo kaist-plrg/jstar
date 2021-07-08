@@ -59,13 +59,8 @@ object JSTAR {
   val commands: List[Command] = List(
     CmdHelp,
     CmdParse,
-    CmdCompileREPL,
-    CmdCheck,
     CmdBuildCFG,
     CmdAnalyze,
-    CmdGenTest,
-    CmdExtractTag,
-    CmdStyleGuide
   )
   val cmdMap = commands.foldLeft[Map[String, Command]](Map()) {
     case (map, cmd) => map + (cmd.name -> cmd)
@@ -75,13 +70,8 @@ object JSTAR {
   var phases: List[Phase] = List(
     Help,
     Parse,
-    CompileREPL,
-    Check,
     BuildCFG,
     Analyze,
-    GenTest,
-    ExtractTag,
-    StyleGuide
   )
 
   // global options

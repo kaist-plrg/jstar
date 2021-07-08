@@ -57,15 +57,6 @@ case object CmdParse extends CommandObj("parse", CmdBase >> Parse) {
   }
 }
 
-// style-guide
-case object CmdStyleGuide extends CommandObj("style-guide", CmdParse >> StyleGuide)
-
-// compile-repl
-case object CmdCompileREPL extends CommandObj("compile-repl", CmdBase >> CompileREPL)
-
-// check
-case object CmdCheck extends CommandObj("check", CmdParse >> Check)
-
 // build-cfg
 case object CmdBuildCFG extends CommandObj("build-cfg", CmdParse >> BuildCFG)
 
@@ -75,12 +66,4 @@ case object CmdAnalyze extends CommandObj("analyze", CmdBuildCFG >> Analyze) {
     println(AbsSemantics.getString(CYAN))
     println(AbsSemantics.getInfo)
   }
-}
-
-// gen-test
-case object CmdGenTest extends CommandObj("gen-test", CmdBase >> GenTest)
-
-// extract tag
-case object CmdExtractTag extends CommandObj("extract-tag", CmdBase >> ExtractTag) {
-  override def display(elems: List[Element]): Unit = elems.foreach(println _)
 }
