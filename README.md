@@ -73,9 +73,9 @@ $ jstar <sub-command> <option>*
 ```
 with the following sub-commands:
 - `help` shows the help message.
-  - `-extract:version={string}` is given, set the git version of ecma262.
 - `extract` represents **Specification Extraction** phase that extracts a
   mechanized specification from ECMAScript defined in `ecma262/spec.html`.
+  - `-extract:version={string}` is given, set the git version of ecma262.
 - `build-cfg` builds control flow graph (CFG).
 - `analyze` represents **Type Analysis** and **Bug Detection** phases that
   performs type analysis of a given mechanized specification and detects
