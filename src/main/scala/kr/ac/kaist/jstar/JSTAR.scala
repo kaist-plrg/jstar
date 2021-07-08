@@ -27,7 +27,7 @@ object JSTAR {
   }
 
   def apply[Result](
-    command: CommandObj[Result],
+    command: Command[Result],
     runner: JSTARConfig => Result,
     config: JSTARConfig
   ): Result = {
@@ -56,13 +56,13 @@ object JSTAR {
   }
 
   // commands
-  val commands: List[Command] = List(
+  val commands: List[Command[_]] = List(
     CmdHelp,
     CmdExtract,
     CmdBuildCFG,
     CmdAnalyze,
   )
-  val cmdMap = commands.foldLeft[Map[String, Command]](Map()) {
+  val cmdMap = commands.foldLeft[Map[String, Command[_]]](Map()) {
     case (map, cmd) => map + (cmd.name -> cmd)
   }
 
@@ -77,13 +77,13 @@ object JSTAR {
   // global options
   val options: List[PhaseOption[JSTARConfig]] = List(
     ("silent", BoolOption(c => c.silent = true),
-      "final results are not displayed."),
+      "do not show final results."),
     ("debug", BoolOption(c => DEBUG = true),
-      "turn on the debub option."),
+      "turn on the debug mode."),
     ("log", BoolOption(c => LOG = true),
-      "turn on the log option."),
+      "turn on the logging mode."),
     ("time", BoolOption(c => c.time = true),
-      "display duration time.")
+      "display the duration time.")
   )
 
   // indentation
@@ -97,7 +97,10 @@ object JSTAR {
     s.append("    format: {command} {phase} [>> {phase}]*").append(LINE_SEP).append(LINE_SEP)
     commands foreach (cmd => {
       s.append(s"    %-${INDENT}s".format(cmd.name))
-        .append(cmd.toString.replace(LINE_SEP, LINE_SEP + "    " + " " * INDENT))
+        .append(cmd.help)
+        .append(LINE_SEP)
+      s.append("    " + " " * INDENT)
+        .append(s"(${cmd.pList.toString})")
         .append(LINE_SEP)
     })
     s.append(LINE_SEP)
@@ -126,7 +129,7 @@ object JSTAR {
 }
 
 case class JSTARConfig(
-  var command: Command,
+  var command: Command[_],
   var args: List[String] = Nil,
   var silent: Boolean = false,
   var debug: Boolean = false,

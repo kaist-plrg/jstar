@@ -12,7 +12,7 @@ import kr.ac.kaist.jstar.analyzer.Stat
 // Extract phase
 case object Extract extends PhaseObj[Unit, ExtractConfig, ECMAScript] {
   val name = "extract"
-  val help = "Extracts spec.html to an ECMAScript object"
+  val help = "extracts ECMAScript model from ecma262/spec.html."
 
   def apply(
     unit: Unit,

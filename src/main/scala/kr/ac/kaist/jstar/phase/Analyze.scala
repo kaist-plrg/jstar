@@ -11,7 +11,7 @@ import scala.Console._
 // Analyze phase
 case object Analyze extends PhaseObj[CFG, AnalyzeConfig, Unit] {
   val name = "analyze"
-  val help = "performs static anaysis for specifications."
+  val help = "performs type analysis for the given ECMAScript."
 
   def apply(
     cfg: CFG,

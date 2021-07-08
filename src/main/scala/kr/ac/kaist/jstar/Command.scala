@@ -9,15 +9,11 @@ import kr.ac.kaist.jstar.util.ArgParser
 import org.jsoup.nodes.Element
 import scala.Console._
 
-sealed trait Command {
-  val name: String
-  def apply(args: List[String]): Any
-}
-
-class CommandObj[Result](
-  override val name: String,
-  pList: PhaseList[Result]
-) extends Command {
+sealed abstract class Command[Result](
+  val name: String,
+  val pList: PhaseList[Result]
+) {
+  def help: String
   def apply(args: List[String]): Result = {
     val jstarConfig = JSTARConfig(this)
     val parser = new ArgParser(this, jstarConfig)
@@ -34,13 +30,18 @@ class CommandObj[Result](
 }
 
 // base command
-case object CmdBase extends CommandObj("", PhaseNil)
+case object CmdBase extends Command("", PhaseNil) {
+  def help: String = "does nothing."
+}
 
 // help
-case object CmdHelp extends CommandObj("help", CmdBase >> Help)
+case object CmdHelp extends Command("help", CmdBase >> Help) {
+  def help: String = "shows help messages."
+}
 
 // extract
-case object CmdExtract extends CommandObj("extract", CmdBase >> Extract) {
+case object CmdExtract extends Command("extract", CmdBase >> Extract) {
+  def help = "extracts ECMAScript model from ecma262/spec.html."
   override def display(spec: ECMAScript): Unit = {
     val ECMAScript(grammar, algos, intrinsics, symbols, aoids, section) = spec
     println(s"* grammar:")
@@ -58,10 +59,13 @@ case object CmdExtract extends CommandObj("extract", CmdBase >> Extract) {
 }
 
 // build-cfg
-case object CmdBuildCFG extends CommandObj("build-cfg", CmdExtract >> BuildCFG)
+case object CmdBuildCFG extends Command("build-cfg", CmdExtract >> BuildCFG) {
+  def help = "builds control flow graph (CFG)."
+}
 
 // analyze
-case object CmdAnalyze extends CommandObj("analyze", CmdBuildCFG >> Analyze) {
+case object CmdAnalyze extends Command("analyze", CmdBuildCFG >> Analyze) {
+  def help = "performs type analysis for the given ECMAScript."
   override def display(unit: Unit): Unit = {
     println(AbsSemantics.getString(CYAN))
     println(AbsSemantics.getInfo)
