@@ -26,7 +26,7 @@ Please see `INSTALL.md` for the detailed guide of installation.
 
 ![image](https://user-images.githubusercontent.com/6766660/124905848-67814600-e021-11eb-829f-476e00f9c581.png)
 
-JSTAR consists of three components: 1) specification extraction, 2) type
+JSTAR consists of three phases: 1) specification extraction, 2) type
 analysis, and 3) bug detection:
 
 ### 1) Specification Extraction
@@ -73,7 +73,21 @@ $ jstar <sub-command> <option>*
 ```
 with the following sub-commands:
 - `help` shows the help message.
-- TODO
+  - `-extract:version={string}` is given, set the git version of ecma262.
+- `extract` represents **Specification Extraction** phase that extracts a
+  mechanized specification from ECMAScript defined in `ecma262/spec.html`.
+- `build-cfg` builds control flow graph (CFG).
+- `analyze` represents **Type Analysis** and **Bug Detection** phases that
+  performs type analysis of a given mechanized specification and detects
+  type-related specification bugs. We merged two phases to immediately detect
+  specification bugs during the type analysis.
+  - `-analyze:no-refine` is given, not use the abstract state refinement.
+
+_NOTE_: We omitted several options for the brevity. Please see the other
+options using `jstar help` command.
 
 and global options:
-- TODO
+- `-silent` is given, do not show final results.
+- `-debug` is given, turn on the debug mode.
+- `-log` is given, turn on the logging mode.
+- `-time` is given, display the duration time.
