@@ -3,7 +3,7 @@ import sbtassembly.AssemblyPlugin.defaultUniversalScript
 
 ThisBuild / version       := "1.0"
 ThisBuild / scalaVersion  := "2.13.1"
-ThisBuild / organization  := "kr.ac.kaist.jiset"
+ThisBuild / organization  := "kr.ac.kaist.jstar"
 ThisBuild / scalacOptions := Seq(
   "-deprecation", "-feature", "-language:postfixOps",
   "-language:implicitConversions", "-language:existentials", "-language:reflectiveCalls"
@@ -51,10 +51,10 @@ lazy val analyzerStringifyTest = taskKey[Unit]("Launch analyzer stringify tests 
 lazy val irTest = taskKey[Unit]("Launch ir tests")
 lazy val irBeautifierTest = taskKey[Unit]("Launch beautifier ir tests (small)")
 
-// jiset
-lazy val jiset = (project in file("."))
+// jstar
+lazy val jstar = (project in file("."))
   .settings(
-    name := "JISET",
+    name := "JSTAR",
     libraryDependencies ++= Seq(
       "io.spray" %% "spray-json" % "1.3.5",
       "org.scala-lang" % "scala-reflect" % scalaVersion.value,
@@ -72,7 +72,7 @@ lazy val jiset = (project in file("."))
       .setPreference(DanglingCloseParenthesis, Force)
       .setPreference(DoubleIndentConstructorArguments, false),
     parallelExecution in Test := true,
-    assemblyOutputPath in assembly := file("bin/jiset"),
+    assemblyOutputPath in assembly := file("bin/jstar"),
     assemblyOption in assembly := (assemblyOption in assembly).value
       .copy(prependShellScript = Some(defaultUniversalScript(shebang = false))),
     // size

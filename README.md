@@ -4,18 +4,18 @@ JavaScript Specification Type Analyzer using Refinement
 _previuos readme below_
 ------
 
-# JISET
+# JSTAR
 JavaScript IR-based Semantics Extraction Toolchain
 
 ## Environment Setting
 ```
-export JISET_HOME="<<JISET directory path>>"
-export PATH="$JISET_HOME/bin:$PATH"
+export JSTAR_HOME="<<JSTAR directory path>>"
+export PATH="$JSTAR_HOME/bin:$PATH"
 ```
 
 ## Install
 ```
-git clone --recurse-submodules git@github.com:kaist-plrg/jiset.git
-cd jiset
+git clone --recurse-submodules git@github.com:kaist-plrg/jstar.git
+cd jstar
 sbt generateModel
 ```

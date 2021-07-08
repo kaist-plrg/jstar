@@ -26,10 +26,10 @@ def print_yellow(msg):
     return msg
 
 # Path
-JISET_HOME = environ["JISET_HOME"]
-EVAL_HOME = join(JISET_HOME, "eval")
-LOG_DIR = join(JISET_HOME, "logs", "analyze")
-ECMA_DIR = join(JISET_HOME, "ecma262")
+JSTAR_HOME = environ["JSTAR_HOME"]
+EVAL_HOME = join(JSTAR_HOME, "eval")
+LOG_DIR = join(JSTAR_HOME, "logs", "analyze")
+ECMA_DIR = join(JSTAR_HOME, "ecma262")
 RESULT_DIR = join(EVAL_HOME, "result")
 RAW_DIR = join(RESULT_DIR, "raw")
 DIFF_DIR = join(RESULT_DIR, "diff")
@@ -75,7 +75,7 @@ def get_commit_info(commit_hash):
         "version": commit_hash,
         "date": cdate,
         "author": an
-    } 
+    }
 def get_remote_errors(remote_path, suffix):
     print(f"rsync {remote_path}...")
     result_dir = join(EVAL_HOME, "result" + suffix)
@@ -103,10 +103,10 @@ def get_days_from_es2018(commit):
     return (cdate - fdate).days
 
 # Util
-def build_jiset():
+def build_jstar():
     if exists(EVAL_LOG):
         remove(EVAL_LOG)
-    chdir(JISET_HOME)
+    chdir(JSTAR_HOME)
     print("update...")
     execute_sh("git pull", EVAL_LOG_POST)
     execute_sh("git submodule update", EVAL_LOG_POST)
@@ -117,7 +117,7 @@ def run_analyze(version):
     desc = get_commit_desc(version)
     prune_opt = "-analyze:no-prune" if NO_PRUNE else ""
     print(f"run analyze({desc}) {prune_opt}...")
-    cmd = f"jiset analyze -time -log -silent -parse:version={version} {prune_opt}"
+    cmd = f"jstar analyze -time -log -silent -parse:version={version} {prune_opt}"
     execute_sh(cmd, EVAL_LOG_POST)
     execute_sh(f"mkdir -p {RAW_DIR}")
     version_dir = get_version_dir(version)
@@ -253,12 +253,12 @@ def dump_bug_diffs():
                 ttl += local_ttl
             # add info
             infos.append({
-                "created_info": cinfo, 
+                "created_info": cinfo,
                 "deleted_info": dinfo,
                 "TTL": str(local_ttl)
             })
         pretty_results.append({
-            "errors": e, 
+            "errors": e,
             "infos": infos,
             "TTL": str(ttl)
         })
@@ -270,9 +270,9 @@ def dump_bug_diffs():
     p1, tp1 = 0, 0
     with open(join(RESULT_DIR, "bug-diffs-summary.tsv"), "w") as f:
         writeln = lambda cells: f.write("\t".join(cells) + "\n")
-        writeln(["bug", 
-            "c_author", "c_commit", "c_date", 
-            "r_author", "r_commit", "r_date", 
+        writeln(["bug",
+            "c_author", "c_commit", "c_date",
+            "r_author", "r_commit", "r_date",
             "TTL", "category", "kind", "T/F"])
 
         def get_cat_and_kind(bug):
@@ -293,23 +293,23 @@ def dump_bug_diffs():
             else:
                 print(bug)
                 raise NotImplementedError
-            
+
         def get_info_data(info):
             if info == None:
                 return ["-"] * 3
             version = info["version"]
             return [info["author"], version, str(get_days_from_es2018(version))]
-        
+
         for pres in pretty_results:
             bug, bug_count = pres["errors"], len(pres["infos"])
             tf_str = "T" if bug in true_bugs else "F"
             for info in pres["infos"]:
                 cinfo, dinfo = info["created_info"], info["deleted_info"]
-                writeln([bug] + 
-                        get_info_data(cinfo) + 
-                        get_info_data(dinfo) + 
+                writeln([bug] +
+                        get_info_data(cinfo) +
+                        get_info_data(dinfo) +
                         [info["TTL"]] +
-                        get_cat_and_kind(bug) + 
+                        get_cat_and_kind(bug) +
                         [tf_str])
             p1 += bug_count
             tp1 += bug_count if bug in true_bugs else 0
@@ -537,7 +537,7 @@ def main():
     parser.add_argument( "--noprune", action="store_true", default=False, help="use -analyze:no-prune during analysis" )
     parser.add_argument( "--stride", help="run analyzer based on stride(OFFSET/STRIDE)")
     parser.add_argument( "--sparse", help="run analyzer sparsely based on diff" )
-    parser.add_argument( "-g", "--grep", type=lambda items:[item for item in items.split(",")], help="grep $JISET_HOME/eval/result/raw/*/error from remote")
+    parser.add_argument( "-g", "--grep", type=lambda items:[item for item in items.split(",")], help="grep $JSTAR_HOME/eval/result/raw/*/error from remote")
     args = parser.parse_args()
 
     # make directory
@@ -558,10 +558,10 @@ def main():
     global NO_PRUNE
     NO_PRUNE = args.noprune
 
-    # build JISET
+    # build JSTAR
     if not args.stat and not args.grep:
-        build_jiset()
-    
+        build_jstar()
+
     # command stat
     if args.stat:
         with open(join(RESULT_DIR, "stat.log"), "w") as f:
