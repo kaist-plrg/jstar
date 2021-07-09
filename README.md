@@ -10,7 +10,8 @@ Specifications (IRES).
 
 ## Publication
 
-Details of the JSTAR framework are available in the paper `ase21-park-jstar.pdf`.
+Details of the JSTAR framework are available in the paper
+`ase21-park-jstar.pdf` and the companion report `ase21-park-jstar-report.pdf`.
 
 
 ## Getting Started Guide

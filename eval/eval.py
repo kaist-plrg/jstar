@@ -40,7 +40,7 @@ FIRST_VERSION = "fc85c50181b2b8d7d75f034800528d87fda6b654"
 # ES2018_VERSION = "59d73dc08ea371866c1d9d45843e6752f26a48e4"
 ES2018_VERSION = "8fadde42cf6a9879b4ab0cb6142b31c4ee501667"
 COMMIT_REGEX = re.compile("^[a-z0-9]{40}$")
-NO_PRUNE = False
+NO_REFINE = False
 COMMIT_INFOS = {"unknown": None}
 
 # Shell util
@@ -115,9 +115,9 @@ def build_jstar():
     chdir(EVAL_HOME)
 def run_analyze(version):
     desc = get_commit_desc(version)
-    prune_opt = "-analyze:no-prune" if NO_PRUNE else ""
-    print(f"run analyze({desc}) {prune_opt}...")
-    cmd = f"jstar analyze -time -log -silent -parse:version={version} {prune_opt}"
+    refine_opt = "-analyze:no-refine" if NO_REFINE else ""
+    print(f"run analyze({desc}) {refine_opt}...")
+    cmd = f"jstar analyze -time -log -silent -extract:version={version} {refine_opt}"
     execute_sh(cmd, EVAL_LOG_POST)
     execute_sh(f"mkdir -p {RAW_DIR}")
     version_dir = get_version_dir(version)
@@ -534,7 +534,7 @@ def main():
     parser.add_argument( "-c", "--check", action="store_true", default=False, help="check errors.json based on CACHED result/raw/*" )
     parser.add_argument( "-sc", "--scheck", action="store_true", default=False, help="strictly check errors.json based on result/raw/*" )
     parser.add_argument( "-fc", "--fcheck", action="store_true", default=False, help="check errors.json based on NEW result/raw/*" )
-    parser.add_argument( "--noprune", action="store_true", default=False, help="use -analyze:no-prune during analysis" )
+    parser.add_argument( "-nr", "--no-refine", action="store_true", default=False, help="use -analyze:no-refine during analysis" )
     parser.add_argument( "--stride", help="run analyzer based on stride(OFFSET/STRIDE)")
     parser.add_argument( "--sparse", help="run analyzer sparsely based on diff" )
     parser.add_argument( "-g", "--grep", type=lambda items:[item for item in items.split(",")], help="grep $JSTAR_HOME/eval/result/raw/*/error from remote")
@@ -554,9 +554,9 @@ def main():
     for commit in get_all_commits():
         COMMIT_INFOS[commit] = get_commit_info(commit)
 
-    # no-prune opt
-    global NO_PRUNE
-    NO_PRUNE = args.noprune
+    # no-refine opt
+    global NO_REFINE
+    NO_REFINE = args.no_refine
 
     # build JSTAR
     if not args.stat and not args.grep:
