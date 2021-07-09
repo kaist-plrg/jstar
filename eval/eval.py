@@ -215,7 +215,7 @@ def dump_bug_diffs():
     if len(versions) == 0:
         return 0
     errors_map = dict([(v, AnalysisResult(v).errors) for v in versions])
-    errors = reduce(lambda acc, v: acc.union(errors_map[v]), errors_map, set())
+    errors = sorted(reduce(lambda acc, v: acc.union(errors_map[v]), errors_map, set()))
     # sort version in ASC
     sorted_versions = [v for v in reversed(get_all_commits()) if v in versions]
     first_version = sorted_versions[0]
@@ -271,8 +271,8 @@ def dump_bug_diffs():
     with open(join(RESULT_DIR, "bug-diffs-summary.tsv"), "w") as f:
         writeln = lambda cells: f.write("\t".join(cells) + "\n")
         writeln(["bug",
-            "c_author", "c_commit", "c_date",
-            "r_author", "r_commit", "r_date",
+            "c_commit", "c_date",
+            "r_commit", "r_date",
             "TTL", "category", "kind", "T/F"])
 
         def get_cat_and_kind(bug):
@@ -296,9 +296,9 @@ def dump_bug_diffs():
 
         def get_info_data(info):
             if info == None:
-                return ["-"] * 3
+                return ["-"] * 2
             version = info["version"]
-            return [info["author"], version, str(get_days_from_es2018(version))]
+            return [version, str(get_days_from_es2018(version))]
 
         for pres in pretty_results:
             bug, bug_count = pres["errors"], len(pres["infos"])
@@ -346,23 +346,6 @@ def dump_diff_summary():
                 diff = prev_result.diff(result)
                 writeln([version, size(diff["+"]), size(diff["-"])] + commons)
 
-def dump_sparse_targets():
-    versions = get_all_commits()
-    with open(join(EVAL_HOME, "sparse_targets"), "w") as f:
-        for i, version in enumerate(versions):
-            if version == ES2018_VERSION:
-                f.write(version + "\n")
-                break
-            prev_version = versions[i+1]
-            # if no analysis result, add to targets
-            if not has_result(version) or not has_result(prev_version):
-                f.write(version + "\n")
-            else:
-                prev_result, result = get_results([prev_version, version])
-                # if diff is not empty, add to targets
-                if prev_result != result:
-                    f.write(version + "\n")
-
 # dump stats
 def dump_stat(stat_f):
     def print_header(msg):
@@ -380,12 +363,6 @@ def dump_stat(stat_f):
     p0, tp0, p1, tp1 = dump_bug_diffs()
     dump_diff_summary()
     log(stat_f, print, f"calc diff completed.")
-
-    # dump sparse targets
-    print_header("SPARSE TARGETS")
-    log(stat_f, print, f"calc sparse targets...")
-    dump_sparse_targets()
-    log(stat_f, print, f"calc sparse completed.")
 
     # print precision
     print_header("SUMMARY")
@@ -419,129 +396,17 @@ def check_errors(option, check_f):
         AnalysisResult(version).check(bugs, check_f)
     print("check errors completed.")
 
-# strictly check target errors
-def strict_check_errors(strict_f):
-    versions = get_all_commits()
-    print(f"strict-check errors...")
-    # get target errors
-    for target_error in get_target_errors():
-        version = target_error["version"]
-        bugs = target_error["bugs"]
-        # handle first version
-        if version == versions[0] and has_result(version):
-            AnalysisResult(version).check(bugs, strict_f)
-            continue
-        next_version = versions[versions.index(version)-1]
-        # log YET if analysis result is not found
-        if not has_result(version) or not has_result(next_version):
-            for bug in bugs:
-                log(strict_f, print_yellow, f"[YET] @ {version}: {bug}")
-        # strict check
-        else:
-            result, next_result = get_results([version, next_version])
-            for bug in bugs:
-                if result.contains(bug) and not next_result.contains(bug):
-                    log(strict_f, print_green, f"[PASS] @ {version}: {bug}")
-                else:
-                    log(strict_f, print_red, f"[FAIL] @ {version}: {bug}")
-    print(f"strict-check completed.")
-
-# sparsely run analyzer based on previous analysis result
-def sparse_run(sparse_targets, log_f):
-    print(f"run-sparse started...")
-    versions = get_all_commits()
-    # calc sparse targets
-    targets = [False] * len(versions)
-    for v in versions:
-        targets = v in sparse_targets
-    # always analyze recent, es2018 commit
-    targets[0], targets[-1] = True, True
-    # run analyzer sparsely
-    i, analyzed = 0, set()
-    def analyze_once(v):
-        if not v in analyzed:
-            run_analyze(v)
-            analyzed.add(v)
-            log_f.write(v + "\n")
-    def analyze_range(i0, i1):
-        for v in versions[i0:i1]:
-            analyze_once(v)
-    while True:
-        if versions[i] == ES2018_VERSION:
-            analyze_once(version)
-            break
-        version = versions[i]
-        nt_i = targets.index(True, i+1)
-        # get nt_version and prev_version
-        nt_version, prev_version = versions[nt_i], versions[i+1]
-        # analyze 3 versions
-        analyze_once(version)
-        analyze_once(prev_version)
-        analyze_once(nt_version)
-        if nt_i - i <= 2:
-            i = nt_i
-            continue
-        # compare nt_result and prev_result diff with previous results
-        nt_result, prev_result = get_results([nt_version, prev_version])
-        # if diff is still not found
-        if nt_result == prev_result:
-            for v in versions[i+2:nt_i]:
-                desc = get_commit_desc(v)
-                print(f"Skip {desc}...")
-        else:
-            analyze_range(i+2, nt_i)
-        # move to next target
-        i = nt_i
-    print(f"run-sparse completed.")
-
-# grep results from remote
-def grep_remotes(addrs, suffix = ""):
-    # read now, prev from addrs
-    from_now, from_prev = True, True
-    now_paths, prev_paths, hosts = [], [], []
-    print(addrs)
-    for addr in addrs:
-        host = addr.split(":")[0]
-        hosts.append(host)
-        now_path, now_err = read_remote_file(host, "~/now" + suffix)
-        prev_path, prev_err = read_remote_file(host, "~/prev" + suffix)
-        if now_err:
-            from_now = False
-        else:
-            now_paths.append(now_path)
-        if prev_err:
-            from_prev = False
-        else:
-            prev_paths.append(prev_path)
-    # rsync with remotes
-    def rsync_remotes(remote_paths):
-        for i, remote_path in enumerate(remote_paths):
-            get_remote_errors(hosts[i] + ":" + remote_path, suffix)
-    if from_now:
-        print("grep results from NOW" + suffix)
-        rsync_remotes(now_paths)
-    elif from_prev:
-        print("grep results from PREV" + suffix)
-        rsync_remotes(prev_paths)
-
 # entry
 def main():
     # parse arguments
     parser = argparse.ArgumentParser(description="evaluate analyzer result (run all versions if there are no options)")
-    parser.add_argument( "--clean", action="store_true", default=False, help="clean result/* and run analysis to all versions" )
     parser.add_argument( "-s", "--stat", action="store_true", default=False, help="dump status of result/raw/*" )
     parser.add_argument( "-v", "--version", help="run analyzer to target version")
-    parser.add_argument( "-c", "--check", action="store_true", default=False, help="check errors.json based on CACHED result/raw/*" )
-    parser.add_argument( "-sc", "--scheck", action="store_true", default=False, help="strictly check errors.json based on result/raw/*" )
-    parser.add_argument( "-fc", "--fcheck", action="store_true", default=False, help="check errors.json based on NEW result/raw/*" )
     parser.add_argument( "-nr", "--no-refine", action="store_true", default=False, help="use -analyze:no-refine during analysis" )
-    parser.add_argument( "--stride", help="run analyzer based on stride(OFFSET/STRIDE)")
-    parser.add_argument( "--sparse", help="run analyzer sparsely based on diff" )
-    parser.add_argument( "-g", "--grep", type=lambda items:[item for item in items.split(",")], help="grep $JSTAR_HOME/eval/result/raw/*/error from remote")
     args = parser.parse_args()
 
     # make directory
-    if args.clean or args.grep or not exists(RESULT_DIR):
+    if not exists(RESULT_DIR):
         clean_dir(RESULT_DIR)
     if not exists(RAW_DIR):
         makedirs(RAW_DIR)
@@ -559,45 +424,20 @@ def main():
     NO_REFINE = args.no_refine
 
     # build JSTAR
-    if not args.stat and not args.grep:
-        build_jstar()
+    # if not args.stat:
+    #     build_jstar()
 
     # command stat
     if args.stat:
         with open(join(RESULT_DIR, "stat.log"), "w") as f:
             dump_stat(f)
-    # command check
-    elif args.check:
-        with open(join(RESULT_DIR, "check-errors.log"), "w") as f:
-            check_errors(CheckErrorType.ON_DEMAND, f)
-    # command force-check
-    elif args.fcheck:
-        with open(join(RESULT_DIR, "check-errors.log"), "w") as f:
-            check_errors(CheckErrorType.FORCE, f)
-    # command strict-check
-    elif args.scheck:
-        with open(join(RESULT_DIR, "scheck-errors.log"), "w") as f:
-            strict_check_errors(f)
     # command run
     elif args.version != None:
         run_analyze(args.version)
-    # command grep
-    elif args.grep != None:
-        grep_remotes(args.grep)
-        grep_remotes(args.grep, "_np")
-    # command sparse
-    elif args.sparse != None:
-        with open(join(RESULT_DIR, "analyzed"), "w") as log_f:
-            with open(args.sparse, "r") as target_f:
-                sparse_targets = set(target_f.read().strip().splitlines())
-                sparse_run(sparse_targets, log_f)
     # command all
     else:
         # run all versions
         versions = get_all_commits()
-        if args.stride != None:
-            offset, stride = [int(n) for n in args.stride.split("/")]
-            versions = versions[offset::stride]
         with open(join(RESULT_DIR, "analyzed"), "w") as f:
             for version in versions:
                 run_analyze(version)
