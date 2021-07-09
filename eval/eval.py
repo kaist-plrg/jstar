@@ -283,11 +283,11 @@ def dump_bug_diffs():
             elif "assertion failed" in bug:
                 return ["Assertion", "Assertion"]
             elif "unchecked abrupt completion" in bug:
-                return ["Type", "Abrupt"]
+                return ["Operand", "Abrupt"]
             elif "non-numeric types" in bug:
-                return ["Type", "WrongNum"]
+                return ["Operand", "NoNumber"]
             elif "non-number types" in bug:
-                return ["Type", "WrongNum"]
+                return ["Operand", "NoNumber"]
             elif "remaining parameter" in bug:
                 return ["Arity", "MissingParam"]
             else:
