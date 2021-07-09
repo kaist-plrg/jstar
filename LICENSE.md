@@ -1,6 +1,6 @@
-The **J**avaScript **S**pecification **T**ype
-**A**nalyzer using **R**efinement (**JSTAR**) is
-released under this BSD license:
+The JavaScript Specification Type Analyzer using
+Refinement (JSTAR) is released under this BSD
+license:
 --------------------------------------------------
 Copyright (c) 2021, KAIST.
 All rights reserved.
