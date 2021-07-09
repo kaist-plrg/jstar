@@ -32,7 +32,6 @@ LOG_DIR = join(JSTAR_HOME, "logs", "analyze")
 ECMA_DIR = join(JSTAR_HOME, "ecma262")
 RESULT_DIR = join(EVAL_HOME, "result")
 RAW_DIR = join(RESULT_DIR, "raw")
-DIFF_DIR = join(RESULT_DIR, "diff")
 EVAL_LOG = join(RESULT_DIR, "log")
 
 # Global
@@ -176,39 +175,6 @@ class AnalysisResult:
     def __eq__(self, that):
         return isinstance(that, AnalysisResult) and self.errors == that.errors
 
-# dump diffs of analysis results
-def dump_diffs():
-    print(f"remove diff directory: {DIFF_DIR}")
-    clean_dir(DIFF_DIR)
-    # calc diff of each versions and dump
-    versions = get_all_commits()
-    analyzed_versions = get_versions()
-    for i, version in enumerate(versions):
-        if not version in analyzed_versions:
-            continue
-        with open(join(DIFF_DIR, version), "w") as f:
-            prev_version = get_prev_commit(versions[-1]) if version == versions[-1] else versions[i+1]
-            f.write("================================================================================\n")
-            f.write(f"Version          : {version}\n")
-            f.write(f"Previous Version : {prev_version}\n")
-            f.write("--------------------------------------------------------------------------------\n")
-            # if previous version result doesn't exist, then
-            if not prev_version in analyzed_versions:
-                f.write(f"No analysis result for previous version")
-                continue
-            res = AnalysisResult(version)
-            prev_res = AnalysisResult(prev_version)
-            # if analysis result same
-            if prev_res == res:
-                f.write(f"Same analysis result with previous version")
-            # otherwise print diff
-            else:
-                diff = prev_res.diff(res)
-                for new_bug in sorted(diff["+"]):
-                    f.write(f"+{new_bug}\n")
-                for old_bug in sorted(diff["-"]):
-                    f.write(f"-{old_bug}\n")
-
 # dump bug diffs
 def dump_bug_diffs():
     versions = get_versions()
@@ -262,13 +228,10 @@ def dump_bug_diffs():
             "infos": infos,
             "TTL": str(ttl)
         })
-    # dump bug-diffs.json
-    with open(join(RESULT_DIR, "bug-diffs.json"), "w") as f:
-        json.dump(pretty_results, f, indent=2)
-    # dump bug-diffs-summary
+    # dump detected-bugs 
     true_bugs = reduce(lambda acc, e: acc.union(set(e["bugs"])), get_target_errors(), set())
     p1, tp1 = 0, 0
-    with open(join(RESULT_DIR, "bug-diffs-summary.tsv"), "w") as f:
+    with open(join(RESULT_DIR, "detected-bugs.tsv"), "w") as f:
         writeln = lambda cells: f.write("\t".join(cells) + "\n")
         writeln(["bug",
             "c_commit", "c_date",
@@ -327,7 +290,7 @@ def dump_diff_summary():
     # sort version in DESC
     sorted_versions = [v for v in reversed(get_all_commits()) if v in versions]
     first_version = sorted_versions[0]
-    with open(join(RESULT_DIR, "diff-summary.tsv"), "w") as f:
+    with open(join(RESULT_DIR, "summary.tsv"), "w") as f:
         writeln = lambda cells: f.write("\t".join(map(str, cells)) + "\n")
         size = lambda s: str(len(s))
         # columns: version | + | - | # of errors | date | # iter |
@@ -359,7 +322,6 @@ def dump_stat(stat_f):
     # dump diffs of analysis results
     print_header("DUMP DIFFS")
     log(stat_f, print, f"calc diff for current results...")
-    dump_diffs()
     p0, tp0, p1, tp1 = dump_bug_diffs()
     dump_diff_summary()
     log(stat_f, print, f"calc diff completed.")
@@ -410,8 +372,6 @@ def main():
         clean_dir(RESULT_DIR)
     if not exists(RAW_DIR):
         makedirs(RAW_DIR)
-    if not exists(DIFF_DIR):
-        makedirs(DIFF_DIR)
 
     # initialize
     print("initialization...")
