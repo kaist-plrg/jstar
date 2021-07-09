@@ -16,7 +16,19 @@ scratch.  Before installation, please download JDK 8 and
 | Name                                                        | Description                          |
 |:-----------------------------------------------------------:|:-------------------------------------|
 | [jdk8](https://www.oracle.com/java/technologies/java8.html) | Java Standard Edition 8              |
-| [sbt](https://www.scala-sbt.org/)                           | An interactive build tool for Scala |
+| [sbt](https://www.scala-sbt.org/)                           | An interactive build tool for Scala  |
+| [bash](https://www.gnu.org/software/bash/)                  | GNU Bash (version >= 3.2.57)         |
+
+### Environments for Reproduction of Evaluation Results
+
+| Name                                                        | Description                          |
+|:-----------------------------------------------------------:|:-------------------------------------|
+| [python3](https://www.python.org/downloads/)                | Python 3 (version >= 3.7.4)          |
+| [Excel](https://www.microsoft.com/en-us/microsoft-365/excel)| Excel (version >= 2016)              |
+
+_NOTE_: Even though our tool is available in any Linux machine, macOS is
+required to draw evaluation results as figures and tables using Microsoft Excel
+Spreadsheet Software.
 
 
 ## Download JSTAR
@@ -154,7 +166,7 @@ insert any branch name, tag name, or commit hashcode to the option
 $ jstar analyze -silent -extract:version=es2020
 # ...
 ```
-and
+or
 ```bash
 # performs type analysis for the most recent version of ECMAScript
 # - date: Thu Feb 7 23:01:32 2019
@@ -165,10 +177,86 @@ $ jstar analyze -silent -extract:version=143931e9feab858402014cc80c7d163560e2ba9
 
 ## How To Reproduce Evaluation Results
 
-### RQ1) 
+To easily reproduce evaluation results, we developed a wrapper of `jstar`
+called `jstar-exp` which performs type analysis for multiple versions of
+ECMAScript and extracts raw data for figures and tables:
+```bash
+$ jstar-exp <option>*
+```
+with the following options:
+```
+-h, --help                      show this help message and exit
+-s, --stat                      dump status of eval/result/raw/*
+-v VERSION, --version VERSION   run analyzer to target version
+-nr, --no-refine                use -analyze:no-refine during analysis
+```
 
-### RQ2) 
+### Raw Data Creation
+First, please change the working directory to `eval`:
+```bash
+$ cd eval
+```
+To create raw data in the directory `result/raw`, you should run the
+following commands for type analysis with and without refinement:
+```bash
+$ jstar-exp     # create raw data for type analysis with refinement
+$ jstar-exp -s  # create summary of raw data
+```
+and
+```bash
+$ jstar-exp -nr # create raw data for type analysis without refinement
+$ jstar-exp -s  # create summary of raw data
+```
+**HOWEVER**, `jstar-exp` and `jstar-exp -nr` commands might take more than 40
+hours, respectively. Thus, we recommaend you to use given raw data in
+directories `raw-refine` and `raw-no-refine`:
+```bash
+$ mkdir result && cp -r raw-refine result/raw    # copy the given raw data
+$ jstar-exp -s                                   # create summary of raw data
+```
+and
+```bash
+$ mkdir result && cp -r raw-no-refine result/raw # copy the given raw data
+$ jstar-exp -s                                   # create summary of raw data
+```
+If you want to check the given raw data, please run original commands in any
+length of time and compare the generated raw data with them.  You can also
+randomly pick any version between the following two versions:
+```
+- 8fadde42cf6a9879b4ab0cb6142b31c4ee501667 # Fri Jan 12 11:09:21 2018
+- fc85c50181b2b8d7d75f034800528d87fda6b654 # Tue Mar 9 06:56:46 2021
+```
+and perform and dump the raw data for that version to `result/raw/<version>`
+using the following command:
+```bash
+$ jstar-exp -v <version> # add `-nr` for no refinement
+```
+For example, if you want to check the raw data for the version defined with
+commit hashcode `6460fcd9ca7a6e2f8eed533395029c5edd13d672`, please run the
+following commands:
+```bash
+$ jstar-exp -v 6460fcd9ca7a6e2f8eed533395029c5edd13d672
+$ diff result/raw/6460fcd9ca7a6e2f8eed533395029c5edd13d672/errors \
+    raw-refine/6460fcd9ca7a6e2f8eed533395029c5edd13d672/errors
+```
 
-### RQ3) 
+### Drawing Figures and Tables
+Please open the excel file `figures.xlsx`.  After extracting raw data for type
+analysis with refinement, copy the data in `result/summary.tsv` and
+`result/detected-bugs.tsv` to `summary-refine` and `detected-bugs-refine` tab,
+respectively.  Similarly, after extracting raw data for type analysis without
+refinement, copy the data in `result/summary.tsv` and
+`result/detected-bugs.tsv` to `summary-no-refine` and `detected-bugs-no-refine`
+tab, respectively.
 
-### RQ4) 
+### RQ1) Performance (Section V.A)
+Please open `figure-6` tab in `figures.xlsx`.
+
+### RQ2) Precision (Section V.B)
+Please open `figure-7` and `table-2` tabs in `figures.xlsx`.
+
+### RQ3) Effectiveness of Refinement (Section V.C)
+Please open `figure-8` and `table-2` tabs in `figures.xlsx`.
+
+### RQ4) Detection of New Bugs (Section V.D)
+Please open `table-3` tab in `figures.xlsx`.
