@@ -19,7 +19,8 @@ repository:
 ```bash
 $ git clone --recurse-submodules https://github.com/kaist-plrg/jstar.git
 ```
-Please see `INSTALL.md` for the detailed guide of installation.
+Please see `INSTALL.md` for the detailed guide of installation and how to use
+this artifact.
 
 
 ## Overall Structure
@@ -63,31 +64,3 @@ developed four checkers in a bug detector:
   bug occurs when the type of an operand does not conform to its corresponding
   parameter type.  It contains non-numeric operand bugs (`NoNumber`) and
   unchecked abrupt completion bugs (`Abrupt`).
-
-
-## Basic Commands
-
-You can run the artifact with the following command:
-```bash
-$ jstar <sub-command> <option>*
-```
-with the following sub-commands:
-- `help` shows the help message.
-- `extract` represents **Specification Extraction** phase that extracts a
-  mechanized specification from ECMAScript defined in `ecma262/spec.html`.
-  - `-extract:version={string}` is given, set the git version of ecma262.
-- `build-cfg` builds control flow graph (CFG).
-- `analyze` represents **Type Analysis** and **Bug Detection** phases that
-  performs type analysis of a given mechanized specification and detects
-  type-related specification bugs. We merged two phases to immediately detect
-  specification bugs during the type analysis.
-  - `-analyze:no-refine` is given, not use the abstract state refinement.
-
-_NOTE_: We omitted several options for the brevity. Please see the other
-options using `jstar help` command.
-
-and global options:
-- `-silent` is given, do not show final results.
-- `-debug` is given, turn on the debug mode.
-- `-log` is given, turn on the logging mode.
-- `-time` is given, display the duration time.
