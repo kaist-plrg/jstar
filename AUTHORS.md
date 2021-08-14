@@ -1,0 +1,16 @@
+# Authors of JSTAR
+- **Jihyeok Park**
+  - **affiliation**: School of Computing, KAIST
+  - **e-mail**: jhpark0223@kaist.ac.kr
+- **Seungmin An**
+  - **affiliation**: School of Computing, KAIST
+  - **e-mail**: h2oche@kaist.ac.kr
+- **Wonho Shin**
+  - **affiliation**: School of Computing, KAIST
+  - **e-mail**: new170527@kaist.ac.kr
+- **Yusung Sim**
+  - **affiliation**: School of Computing, KAIST
+  - **e-mail**: yusungsim@kaist.ac.kr
+- **Sukyoung Ryu**
+  - **affiliation**: School of Computing, KAIST
+  - **e-mail**: sryu.cs@kaist.ac.kr

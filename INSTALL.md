@@ -32,11 +32,24 @@ Spreadsheet Software.
 
 
 ## Download JSTAR
+
+### Git repository
 ```bash
 $ git clone --recurse-submodules https://github.com/kaist-plrg/jstar.git
 $ cd jstar
 ```
 
+### Zenodo
+https://doi.org/10.5281/zenodo.5084817
+
+### Docker
+```bash
+$ docker pull jhnaldo/jstar:1.0.1
+$ docker run -it -m=16g --rm jhnaldo/jstar:1.0.1
+# user: jstar, password: jstar
+```
+_WARNING_: The docker image is 1GB large thus be patient when you
+download it and please assign more than 16GB memory for the docker engine.
 
 ## Environment Setting (!!IMPORTANT!!)
 
@@ -211,13 +224,15 @@ $ jstar-exp -s  # create summary of raw data
 hours, respectively. Thus, we recommaend you to use given raw data in
 directories `raw-refine` and `raw-no-refine`:
 ```bash
-$ mkdir result && cp -r raw-refine result/raw    # copy the given raw data
-$ jstar-exp -s                                   # create summary of raw data
+$ rm -rf result && mkdir result  # clean up result directory
+$ cp -r raw-refine result/raw    # copy the given raw data
+$ jstar-exp -s                   # create summary of raw data
 ```
 and
 ```bash
-$ mkdir result && cp -r raw-no-refine result/raw # copy the given raw data
-$ jstar-exp -s                                   # create summary of raw data
+$ rm -rf result && mkdir result  # clean up result directory
+$ cp -r raw-no-refine result/raw # copy the given raw data
+$ jstar-exp -s                   # create summary of raw data
 ```
 If you want to check the given raw data, please run original commands in any
 length of time and compare the generated raw data with them.  You can also
