@@ -40,15 +40,14 @@ $ cd jstar
 ```
 
 ### Zenodo
-https://doi.org/10.5281/zenodo.5084817
+https://doi.org/10.5281/zenodo.5084816
 
 ### Docker
 ```bash
-$ docker pull jhnaldo/jstar:1.0.1
-$ docker run -it -m=16g --rm jhnaldo/jstar:1.0.1
+$ docker run -it -m=16g --rm jhnaldo/jstar
 # user: jstar, password: jstar
 ```
-_WARNING_: The docker image is 1GB large thus be patient when you
+_WARNING_: The docker image is 1.5GB large thus be patient when you
 download it and please assign more than 16GB memory for the docker engine.
 
 ## Environment Setting (!!IMPORTANT!!)

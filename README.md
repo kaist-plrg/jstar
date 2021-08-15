@@ -1,6 +1,6 @@
 # JSTAR: JavaScript Specification Type Analyzer using Refinement
 
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5084817.svg)](https://doi.org/10.5281/zenodo.5084817)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5084816.svg)](https://doi.org/10.5281/zenodo.5084816)
 [![Docker Image Version (latest by date)](https://img.shields.io/docker/v/jhnaldo/jstar)](https://hub.docker.com/repository/docker/jhnaldo/jstar)
 
 **JSTAR** is a **J**avaScript **S**pecification **T**ype **A**nalyzer using
