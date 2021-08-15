@@ -1,5 +1,8 @@
 # JSTAR: JavaScript Specification Type Analyzer using Refinement
 
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.5084817.svg)](https://doi.org/10.5281/zenodo.5084817)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/jhnaldo/jstar)](https://hub.docker.com/repository/docker/jhnaldo/jstar)
+
 **JSTAR** is a **J**avaScript **S**pecification **T**ype **A**nalyzer using
 **R**efinement, which is a novel approach to detect specification bugs via type
 analysis.  This artifact extends [JISET](https://github.com/kaist-plrg/jiset)
