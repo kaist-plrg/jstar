@@ -342,7 +342,7 @@ trait HeadParsers extends Parsers {
   import ir._
   import Param.Kind._
 
-  lazy val name = "[a-zA-Z]+".r
+  lazy val name = "[a-zA-Z0-9%_]+".r
   lazy val field = (
     "." ~> name ^^ { EStr(_) } |
     "[" ~ "@@" ~> name <~ "]" ^^ { x => ir.Parser.parseExpr("SYMBOL_" + x) }
