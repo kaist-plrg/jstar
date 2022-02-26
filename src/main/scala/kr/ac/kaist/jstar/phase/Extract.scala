@@ -27,10 +27,12 @@ case object Extract extends PhaseObj[Unit, ExtractConfig, ECMAScript] {
       case None =>
         val version = config.version.getOrElse("recent")
         val query = config.query.getOrElse("")
+        val proposals = config.proposals.getOrElse(Nil)
         println(s"version: $version (${getRawVersion(version)})")
+        proposals.foreach(proposal => println(s"additional proposal: $proposal"))
         if (query != "") println(s"query: $query")
         time(s"extracting spec.html", {
-          ECMAScriptParser(version, query, config.detail)
+          ECMAScriptParser(version, proposals, query, config.detail)
         })
     }
     Stat.extractTime = extractTime
@@ -73,6 +75,8 @@ case object Extract extends PhaseObj[Unit, ExtractConfig, ECMAScript] {
   val options: List[PhaseOption[ExtractConfig]] = List(
     ("version", StrOption((c, s) => c.version = Some(s)),
       "set the git version of ecma262."),
+    ("proposals", ListOption((c, l) => c.proposals = Some(l)),
+      "parse additional proposal ecmarkup files."),
     ("query", StrOption((c, s) => c.query = Some(s)),
       "set target query."),
     ("load", StrOption((c, s) => c.load = Some(s)),
@@ -87,6 +91,7 @@ case object Extract extends PhaseObj[Unit, ExtractConfig, ECMAScript] {
 // Extract phase config
 case class ExtractConfig(
   var version: Option[String] = None,
+  var proposals: Option[List[String]] = None,
   var query: Option[String] = None,
   var load: Option[String] = None,
   var json: Option[String] = None,

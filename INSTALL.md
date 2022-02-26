@@ -81,6 +81,8 @@ with the following sub-commands:
 - `extract` represents **Specification Extraction** phase that extracts a
   mechanized specification from ECMAScript defined in `ecma262/spec.html`.
   - `-extract:version={string}` is given, set the git version of ecma262.
+  - `-extract:proposals={file},{file},...` appends proposal Ecmarkup files to
+    the main specification text. (Very experimental!)
 - `build-cfg` builds control flow graph (CFG).
 - `analyze` represents **Type Analysis** and **Bug Detection** phases that
   performs type analysis of a given mechanized specification and detects
