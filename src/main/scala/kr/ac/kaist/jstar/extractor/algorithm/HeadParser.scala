@@ -57,7 +57,7 @@ object HeadParser extends HeadParsers {
       getEnvMethodHead(name, prev, elem, params)
     else if (isObjMethod(name))
       getObjMethodHead(name, prev, elem, params)
-    else if (isBuiltin(prev, elem, builtinLine))
+    else if (isBuiltin(prev, elem, elem.parent, builtinLine))
       getBuiltinHead(name, params)
     else if (isThisValue(prev, elem, builtinLine))
       getThisValueHead(prev)
@@ -270,11 +270,12 @@ object HeadParser extends HeadParsers {
   def isBuiltin(
     prev: Element,
     elem: Element,
+    emuClause: Element,
     builtinLine: Int
   )(implicit lines: Array[String]): Boolean = getRange(elem) match {
     case None => false
     case Some((start, _)) =>
-      start >= builtinLine && !absOpPattern.matches(prev.text)
+      start >= builtinLine && !absOpPattern.matches(prev.text) && emuClause.attr("type") != "abstract operation"
   }
 
   // builtin head
@@ -362,8 +363,21 @@ trait HeadParsers extends Parsers {
     opt(",") ~> param ~ params ^^ { case x ~ ps => Param(x) :: ps } |
     "" ^^^ Nil
   )
+  lazy val typeWord = not("optional") ~ "[^)_,]+".r
+  lazy val structuredType = typeWord ~ rep("," ~ typeWord)
+  lazy val structuredParam = param <~ ":" ~ structuredType ~ ","
+  lazy val structuredParamsTail: Parser[List[Param]] = (
+    structuredParams |
+    // The empty string cannot be at the top level in structuredParams,
+    // otherwise it conflicts with the empty string in params
+    "" ^^^ Nil
+  )
+  lazy val structuredParams: Parser[List[Param]] = (
+    "optional" ~> structuredParam ~ structuredParamsTail ^^ { case x ~ ps => Param(x, Optional) :: ps } |
+    structuredParam ~ structuredParamsTail ^^ { case x ~ ps => Param(x) :: ps }
+  )
   lazy val paramList = (
-    "(" ~> params <~ ")" |
+    "(" ~> (structuredParams | params) <~ ")" |
     "(" ~ repsep(param | "…", ",") ~ ")" ^^^ Nil
   )
 }

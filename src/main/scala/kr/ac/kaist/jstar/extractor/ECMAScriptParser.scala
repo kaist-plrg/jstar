@@ -268,9 +268,13 @@ object ECMAScriptParser {
 
   // get aoids
   def parseAoids(implicit document: Document): Set[String] = {
-    toArray(document.select("[aoid]")).map(elem => {
+    val oldStyleAoids = toArray(document.select("[aoid]")).map(elem => {
       "[/\\s]".r.replaceAllIn(elem.attr("aoid"), "")
     }).toSet
+    val structuredAoids = toArray(document.select("[type=\"abstract operation\"] > h1")).map(elem => {
+      elem.text.split(" ").head
+    }).toSet
+    oldStyleAoids ++ structuredAoids
   }
 
   // parse section hierarchy
