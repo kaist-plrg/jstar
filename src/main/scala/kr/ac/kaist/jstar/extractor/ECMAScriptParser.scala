@@ -17,10 +17,11 @@ import spray.json._
 object ECMAScriptParser {
   def apply(
     version: String,
+    proposals: List[String],
     query: String,
     detail: Boolean
   ): ECMAScript =
-    apply(version, preprocess(version), query, detail)
+    apply(version, preprocess(version, proposals), query, detail)
   def apply(
     version: String,
     input: (Array[String], Document, Region),
@@ -56,7 +57,7 @@ object ECMAScriptParser {
   // helper
   ////////////////////////////////////////////////////////////////////////////////
   // preprocess for spec.html
-  def preprocess(version: String = RECENT_VERSION): (Array[String], Document, Region) = {
+  def preprocess(version: String = RECENT_VERSION, proposals: List[String] = Nil): (Array[String], Document, Region) = {
     val rawVersion = getRawVersion(version)
     val cur = currentVersion(ECMA262_DIR)
     val src = if (cur == rawVersion) readFile(SPEC_HTML) else {
@@ -65,9 +66,21 @@ object ECMAScriptParser {
       changeVersion(cur, ECMA262_DIR)
       src
     }
-    val lines = unescapeHtml(src).split(LINE_SEP)
+    var lines = unescapeHtml(src).split(LINE_SEP)
     val cutted = dropNoScope(attachLines(src.split(LINE_SEP))).mkString(LINE_SEP)
-    val document = Jsoup.parse(cutted)
+    val proposalText = proposals.map(proposal => {
+      val src = readFile(proposal)
+
+      val proposalLines = unescapeHtml(src).split(LINE_SEP)
+      val lineNumOffset = lines.length
+      lines ++= proposalLines
+
+      // Attach line number annotations to the proposal document's lines, but
+      // make sure they are consecutive with the Ecma-262 line numbers.
+      // Otherwise fetching the lines when parsing algorithms will fail.
+      attachLines(src.split(LINE_SEP), lineNumOffset).mkString(LINE_SEP)
+    }).mkString(LINE_SEP)
+    val document = Jsoup.parse(cutted + proposalText)
     val region = Region(document)
     (lines, document, region)
   }
@@ -77,7 +90,7 @@ object ECMAScriptParser {
   val endPattern = """\s*</([-a-z]+)>\s*""".r
   val pairPattern = """(\s*<)([-a-z]+)([^<>]*(<[^<>]*>[^<>]*)*>.*</[-a-z]+>\s*)""".r
   val ignoreTags = Set("meta", "link", "style", "br", "img", "li", "p")
-  def attachLines(lines: Array[String]): Array[String] = {
+  def attachLines(lines: Array[String], offset: Int = 0): Array[String] = {
     val tagStack = Stack[(String, Int)]()
     var rngs = Map[Int, Int]()
     lines.zipWithIndex.foreach {
@@ -97,9 +110,9 @@ object ECMAScriptParser {
     }
     lines.zipWithIndex.map(_ match {
       case (line @ startPattern(pre, tag, post, _), start) if !ignoreTags.contains(tag) =>
-        rngs.get(start).fold(line)(end => s"$pre$tag s=$start e=$end$post")
+        rngs.get(start).fold(line)(end => s"$pre$tag s=${start + offset} e=${end + offset}$post")
       case (line @ pairPattern(pre, tag, post, _), start) if !ignoreTags.contains(tag) =>
-        s"$pre$tag s=$start e=${start + 1}$post"
+        s"$pre$tag s=${start + offset} e=${start + offset + 1}$post"
       case (line, _) => line
     })
   }
@@ -173,8 +186,8 @@ object ECMAScriptParser {
   // grammar
   ////////////////////////////////////////////////////////////////////////////////
   // parse spec.html to Grammar
-  def parseGrammar(version: String): (Grammar, Document) = {
-    implicit val (lines, document, _) = preprocess(version)
+  def parseGrammar(version: String, proposals: List[String]): (Grammar, Document) = {
+    implicit val (lines, document, _) = preprocess(version, proposals)
     (parseGrammar, document)
   }
   def parseGrammar(implicit lines: Array[String], document: Document): Grammar =
