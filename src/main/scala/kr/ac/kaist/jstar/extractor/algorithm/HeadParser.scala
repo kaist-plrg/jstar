@@ -366,17 +366,10 @@ trait HeadParsers extends Parsers {
   )
   lazy val typeWord = not("optional") ~ "[^)_,]+".r
   lazy val structuredType = typeWord ~ rep("," ~ typeWord)
-  lazy val structuredParam = param <~ ":" ~ structuredType ~ ","
-  lazy val structuredParamsTail: Parser[List[Param]] = (
-    structuredParams |
-    // The empty string cannot be at the top level in structuredParams,
-    // otherwise it conflicts with the empty string in params
-    "" ^^^ Nil
-  )
-  lazy val structuredParams: Parser[List[Param]] = (
-    "optional" ~> structuredParam ~ structuredParamsTail ^^ { case x ~ ps => Param(x, Optional) :: ps } |
-    structuredParam ~ structuredParamsTail ^^ { case x ~ ps => Param(x) :: ps }
-  )
+  lazy val structuredParam = opt("optional") ~ param <~ ":" ~ structuredType ~ "," ^^ {
+    case o ~ x => Param(x, if (o.isDefined) Optional else Normal)
+  }
+  lazy val structuredParams: Parser[List[Param]] = rep1(structuredParam)
   lazy val paramList = (
     "(" ~> (structuredParams | params) <~ ")" |
     "(" ~ repsep(param | "…", ",") ~ ")" ^^^ Nil
